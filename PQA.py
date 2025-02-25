@@ -1,4 +1,6 @@
 from typing import *
+import math
+
 """
 Técnicas a serem utilizadas:
 
@@ -12,7 +14,7 @@ Técnicas a serem utilizadas:
 - mutação inversão : remove um elemento aleatório da lista e o insere em outro lugar
 
 - promover elitismo pela substituição direta dos piores (aka, elitismo simples)
-- promover elitismo percentual (aka, elitismo percentual)
+- promover elitismo SIMPLES + DIVERSIDADE
 """
 
 class PQA():
@@ -21,39 +23,6 @@ class PQA():
         self.flows = flows
         self.distancies = distancies
         self.allocate = allocate
-        if not allocate:
-            self.allocate = genAllocateFunction() #achei que esse nome seria legal para a função l
-
-    def __genAllocateFunction(self,):
-        """
-        Essa função gerará a função de alocação "l". A ideia é muito simples:
-        Ela embaralhará todos os locais de "self.locals_" de tal modo que o 
-        local com o i-ésimo indice guardará o objeto "i".
-        """
-        copyLocals = self.locals_
-        random.shuffle(copyLocals)
-        return copyLocals
-    
-    def __genRandomIndividual(self):
-        """
-        When the localitions are shuffled in the array of locations, it is the same thing as 
-        making anexing new facilities to them, since the facilities are related to the locations
-        because of their indixies, such that, if you have a location (x,y) and it its in the i-th
-        index of the array, them the facility "i" is related to (x,y)
-        """
-        copyLocals = self.locals_.copy()
-        random.shuffle(copyLocals)
-        return copyLocals
-
-    def __genInitPopulation(self, lengthPop:int):
-        initPop:List[List[Tuple[int,int]]] = []
-        for i in range(lengthPop):
-            individual = self.__genRandomIndividual()
-            initPop.append(individual)
-
-    def __findLocal(self, locations:List[Tuple[int,int]], facility:int):
-        #discovers where a facility is located
-        return locations[facility]
 
     def calcSingularFlowCost(self, facility1:int, facility2:int, locations:List[Tuple[int,int]]):
         """
@@ -93,7 +62,7 @@ class PQA():
         bestIndividual = min(tournment, key = lambda individual: self.calcTotalFlowCost(individual))
         return bestIndividual
 
-    def rankingSel(self, population: List[List[Tuple[int, int]]]):
+    def rankingSel(self, population: List[List[Tuple[int, int]]], nothingImportant=None) -> List[Tuple[int,int]]:
         """
         This selection method works by sorting the individuals of the population accordining to their
         fitness (keep in mind that the smallest the "calcTotalFlowCost" the highest the fitness). The highest
@@ -106,6 +75,7 @@ class PQA():
         
         weights:List[int] = []
         
+
         n = len(sortedPopulation)
         for i in range(n):
             weights.append(n-i)
@@ -129,7 +99,9 @@ class PQA():
 
         return (child1,child2)
 
-    def uniformCrossover(self, parent1: List[Tuple[int, int]], parent2: List[Tuple[int, int]]) -> Tuple[List[Tuple[int,int], Tuple[int,int]]]:
+    def uniformCrossover(self, parent1: List[Tuple[int, int]], parent2: List[Tuple[int, int]]) -> Tuple[Tuple[int,int], Tuple[int,int]]:
+        """
+        """
         n = len(parent1)
 
         child1 = []
@@ -165,8 +137,7 @@ class PQA():
 
         return individual
 
-
-    def inversion_mutation(self, individual: List[Tuple[int, int]]):
+    def inversionMutation(self, individual: List[Tuple[int, int]]):
         """
         The ideia is to select a subslist of the list that represents the individual
         and invert this specific strip.
@@ -180,6 +151,174 @@ class PQA():
 
         individual[startIndex:endIndex] = reversed(individual[startIndex:endIndex])
         return individual
+
+    #elitismPropagation
+
+    def simpleElitism(self, previousPopulation:List[List[Tuple[int, int]]], currentPopulation:List[List[Tuple[int,int]]], elitAmount:int) -> List[List[Tuple[int,int]]]:
+        sortedPreviousPopulation = sorted(previousPopulation, key= lambda individual: self.calcTotalFlowCost(individual))
+        sortedCurrentPopulation = sorted(currentPopulation, key= lambda individual: self.calcTotalFlowCost(individual))
+        
+        sortedPreviousPopulation = sortedPreviousPopulation[:elitAmount]
+        sortedCurrentPopulation = sortedCurrentPopulation[:-elitAmount]
+
+        return sortedPreviousPopulation + sortedCurrentPopulation
+
+    def elitismWithDiversity(self, previousPopulation:List[List[Tuple[int,int]]], currentPopulation:List[List[Tuple[int,int]]], oldIndividualAmount:int) ->List[List[Tuple[int,int]]]:
+        """
+        In this strategy, there will be a number "n" corresponding to the amount of individuals taken from the previous population. This "n"
+        is composed by numbers "a" and "b", such that "a" + "b" >= 2. The idea is that, if "n" is even, "a" will correspond to the n/2 most fit
+        from the previous generation and that "b" will correspond to some random "n/2" individuals who are not among the fittest. If "n" is odd,
+        then "a" will correspond to "floor(n/2)" and b to the "ceil(n/2)".
+        """
+        
+        if (oldIndividualAmount <=1):
+            raise ValueError(f"Valor inválido para 'oldIndividualAmount': precisa ser maior ou igual a 2")
+        elif (len(previousPopulation)//2 < oldIndividualAmount):
+            raise ValueError(f"'oldIndividualAmount' pode ser, no máximo, a metade do tamanho de 'previousPopulation'")
+
+        else:
+            sortedPreviousPopulation = sorted(previousPopulation, key = lambda individual: self.calcTotalFlowCost(individual))
+            sortedCurrentPopulation = sorted(currentPopulation, key = lambda individual: self.calcTotalFlowCost(individual))
+
+            amountGroupA = None #grupo dos melhores
+            amountGroupB = None #grupo dos outros
+            lenSortedCurrentPopulation = len(sortedCurrentPopulation)
+
+
+            if (lenSortedCurrentPopulation%2 == 0):
+                amountGroupA = oldIndividualAmount/2
+                amountGroupB = amountGroupA
+            else:
+                amountGroupA = math.floor(oldIndividualAmount/2)
+                amountGroupB = math.ceil(oldIndividualAmount/2)
+            
+            elitePrevious = sortedPreviousPopulation[:amountGroupA]
+            nonElitePrevious = sortedPreviousPopulation[amountGroupA:]
+            nonElitePrevious = random.sample(nonElitePrevious,amountGroupB)
+
+            """
+            The list bellow corresponds to the indexies of the elements that are going to be substituted by the individuals of
+            groups A and B,
+            """
+            finalGroup2replace:List[Tuple[int,int]] = elitePrevious + nonElitePrevious
+            elements2replace:List[int] = self.__randomNumbers(self, lenSortedCurrentPopulation-1, oldIndividualAmount)
+
+
+            for i in range(oldIndividualAmount):
+                for indexCurrentInd in elements2replace:
+                    sortedCurrentPopulation[indexCurrentInd] = finalGroup2replace[i]
+        
+            return currentPopulation
+
+    #main method
+
+    def doOperation(self, selectionMethod:str, crossOverMethod:str,
+                    mutationMethod:str, elitismPropagationMethod:str,
+                    genLimit:int, mutationTax:int, elitismTax:int, tournmentSize:int)
+
+        selectionMethod:Callable =              getattr(self, selectionMethod,          None)
+        crossOverMethod:Callable =              getattr(self, crossOverMethod,          None)
+        mutationMethod:Callable =               getattr(self, mutationMethod,           None)
+        elitismPropagationMethod:Callable =     getattr(self, elitismPropagationMethod, None)
+
+        oldPopulation:List[List[Tuple[int,int]]] = self.__genInitPopulation()
+
+        #statistics
+        fittestIndividual:List[Tuple[int,int]] = None
+        bestFitness:int = float('inf')
+        mediumFitness:int = 0
+
+
+        n = len(oldPopulation)
+
+        for i in range(genLimit):
+            newPopulation:List[List[Tuple[int,int]]] = []
+
+            for i in range(len(n)):
+                parent1 = selectionMethod(oldPopulation, tournamentSize)
+                parent2 = selectionMethod(oldPopulation, tournmentSize)
+
+                child1,child2 = crossOverMethod(parent1,parent2)
+
+                newPopulation.extend([child1,child2])
+            
+            newPopulation = newPopulation[:n]
+
+            #mutation
+            for i in range(n):
+                if random.random() <= mutationTax:
+                    newPopulation[i] = mutationMethod(newPopulation[i])
+            #elitism propagation
+            newPopulation = elitismPropagation(oldPopulation,newPopulation,elitismTax) #tenho que ver se isso não gera um problema de referência nos dicionários do python
+            #updating statistics
+            bestFitness, bestIndividual = self.__getBestFitness_and_individual(newPopulation)
+            populationMean = self.__calculateMean(newPopulation)
+            print(f"""-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            \t\t\t\t\t\t\t\tGERAÇÃO{i}
+            •melhor indivíduo: {bestIndividual}
+                •aptidão: {bestFitness}
+            •aptidão média: {populationMean}""")
+            
+            
+
+    #private methods
+    def __getBestFitness_and_individual(self,population:List[List[Tuple[int,int]]]) -> List[Tuple[int, int]]:
+        return min(population, key=lambda individual: (self.calcTotalFlowCost(individual),individual))
+
+    def __genRandomIndividual(self):
+        """
+        When the localitions are shuffled in the array of locations, it is the same thing as 
+        making anexing new facilities to them, since the facilities are related to the locations
+        because of their indixies, such that, if you have a location (x,y) and it its in the i-th
+        index of the array, them the facility "i" is related to (x,y)
+        """
+        copyLocals = self.locals_.copy()
+        random.shuffle(copyLocals)
+        return copyLocals
+
+    def __genInitPopulation(self, lengthPop:int) -> List[List[Tuple[int,int]]]:
+        initPop:List[List[Tuple[int,int]]] = []
+        for i in range(lengthPop):
+            individual = self.__genRandomIndividual()
+            initPop.append(individual)
+        return initPop
+
+    def __randomNumbers(self, rangeLimit:int, lenList:int) -> List[int]:
+        randomlySelected = []
+
+        while len(randomlySelected) != lenList:
+            randomElement = random.randint(0,rangeLimit)
+            if randomElement in randomlySelected:
+                continue
+            randomlySelected.append(randomElement)
+
+        return randomlySelected
+
+    def __findLocal(self, locations:List[Tuple[int,int]], facility:int):
+        #discovers where a facility is located
+        return locations[facility]
+
+    def __calculateMean(self, population:List[List[Tuple[int,int]]], n) -> float :
+        """
+        This method is pretty slow, because we are re-calculating everything that was already calculated, but is simplier to implement.
+        If the processing take too much time, I'll implement some cache mecanism. While I was writting this, I noticed I am sorting a
+        lot, and this taked O(n logn), it would be faster if the lists were already sorted, but I'll check this latter.
+        """
+        mean:float = 0
+        for i in range(n):
+            mean += self.calcTotalFlowCost(population)
+        
+        return mean/n
+
+    """
+    def swap(self, l1:List[Any], l2:List[Any], i:int, j:int=None):
+        if j == None:
+            j = i
+        
+        temp = l1[i]
+        l1 = 
+    """
+
 
 
 def test():
@@ -202,7 +341,7 @@ def test():
         #(2,0): 6,
 
         (1,2): 1,
-        #(2,1): 1,
+        #(#,1): 1,
     }
     allocate = ["A","B","C"]
 
@@ -211,3 +350,11 @@ def test():
     print(myPQA.calcTotalFlowCost(myPQA.locals_))
 
 test()
+
+"""
+
+alocação = [(x,y), (x1,y1), (x2,y2), (x3,y3)]
+           [  0       1        2        3
+
+alocação[i]
+"""
