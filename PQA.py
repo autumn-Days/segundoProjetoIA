@@ -208,13 +208,13 @@ class PQA():
                 for indexCurrentInd in elements2replace:
                     sortedCurrentPopulation[indexCurrentInd] = finalGroup2replace[i]
         
-            return currentPopulation
+            return sortedCurrentPopulation
 
     #main method
 
     def doOperation(self, selectionMethod:str, crossOverMethod:str,
                     mutationMethod:str, elitismPropagationMethod:str,
-                    genLimit:int, mutationTax:int, elitismTax:int, tournmentSize:int)
+                    genLimit:int, mutationTax:int, elitismTax:int, tournmentSize:int=None):
 
         selectionMethod:Callable =              getattr(self, selectionMethod,          None)
         crossOverMethod:Callable =              getattr(self, crossOverMethod,          None)
@@ -234,7 +234,7 @@ class PQA():
         for i in range(genLimit):
             newPopulation:List[List[Tuple[int,int]]] = []
 
-            for i in range(len(n)):
+            while len(newPopulation) <= n:
                 parent1 = selectionMethod(oldPopulation, tournamentSize)
                 parent2 = selectionMethod(oldPopulation, tournmentSize)
 
@@ -258,6 +258,8 @@ class PQA():
             •melhor indivíduo: {bestIndividual}
                 •aptidão: {bestFitness}
             •aptidão média: {populationMean}""")
+        
+        return (fittestIndividual, bestFitness, mediumFitness)
             
             
 
