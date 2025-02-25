@@ -38,7 +38,7 @@ def eucDistCartesianProduct(localities:List[Tuple[int,int]]) -> Dict[Tuple[Tuple
     """
     distancies: Dict[Tuple[Tuple[int,int],Tuple[int,int]],int] = {}
 
-    for i in range(0,len(localities)):
+    for i in range(0,len(localities)):#deu erro aqui
         for j in range(i+1,len(localities)):
             local1 = localities[i]
             local2 = localities[j]
@@ -50,7 +50,7 @@ def eucDistCartesianProduct(localities:List[Tuple[int,int]]) -> Dict[Tuple[Tuple
     
     return distancies
 
-def genRandomFlows(amountFlows:int) -> Dict[Tuple[int,int],int]:
+def genRandomFlows(amountFlows:int, maxFlowValue:int=100) -> Dict[Tuple[int,int],int]:
     """
     {(obj1,obj2):flow}
     {(n1,n2)}:flow
@@ -59,7 +59,7 @@ def genRandomFlows(amountFlows:int) -> Dict[Tuple[int,int],int]:
     flows:Dict[Tuple[int,int],int] = {} 
     for i in range(0,amountFlows):
         for j in range(i+1,amountFlows):
-            randomFlow = random.randint(1,100)
+            randomFlow = random.randint(1,maxFlowValue)
             flows[(i,j)] = randomFlow
             #Na vdd, não é para adicionar os duplicados. Em última instância, isso gera o dobro do valor esperado no PQA
             #flows[(j,i)] = randomFlow
@@ -74,10 +74,10 @@ def displayFlowMatrix(matrix:Dict[Tuple[int,int],int]) -> None:
         print(f"{key}:{value}")
 
 
-displayFlowMatrix(genRandomFlows(3))
-print("-=-=-=-=-=-=-=-=-=-=")
-locals_ = genRandomLocals(3)
-print("-=-=-=-=-=-=-=-=-=")
-print(locals_)
-print("-=-=-=-=-=-=-=-=-=")
-displayDistanciesMatrix(eucDistCartesianProduct(locals_))
+#displayFlowMatrix(genRandomFlows(3))
+#print("-=-=-=-=-=-=-=-=-=-=")
+#locals_ = genRandomLocals(3)
+#print("-=-=-=-=-=-=-=-=-=")
+#print(locals_)
+#print("-=-=-=-=-=-=-=-=-=")
+#displayDistanciesMatrix(eucDistCartesianProduct(locals_))
