@@ -1,5 +1,5 @@
 from typing import *
-import math
+from generateInput import *
 
 """
 Técnicas a serem utilizadas:
@@ -322,8 +322,8 @@ class PQA():
     """
 
 
-
-def test():
+#teste com valores simbólicos
+def test00():
     locals_ = ["A","B","C"]
     distancies = {
         (("A"),("B")): 10,
@@ -351,7 +351,19 @@ def test():
     print(myPQA.calcSingularFlowCost(0,1,myPQA.locals_))
     print(myPQA.calcTotalFlowCost(myPQA.locals_))
 
-test()
+#teste com valores
+def test01():
+    locals_ = genRandomLocals(5)
+    allocate = locals_
+    eucDistancies = eucDistCartesianProduct(locals_)
+    flows = genRandomFlows(amountFlows=5,maxFlowValue=10)
+    myQPA = PQA(locals_, flows, eucDistancies, allocate)
+    print(myQPA.calcTotalFlowCost(myQPA.locals_))
+
+test00()
+test01()
+
+
 
 """
 
