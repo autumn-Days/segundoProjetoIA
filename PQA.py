@@ -148,13 +148,13 @@ class PQA():
                         removedGenesReservaGenesC1.append(i)
                         continue
                     child1.append(reservaGenesChild1[i])
-                    reservaGenesChild1.pop(i)
+                    #reservaGenesChild1.pop(i)
                     
-                    n -= len(removedGenesReservaGenesC1) + 1
+                    #n -= len(removedGenesReservaGenesC1) + 1
                     
-                    for index in removedGenesReservaGenesC1:
-                        reservaGenesChild1.pop(index)
-                    removedGenesReservaGenesC1.clear()
+                    #for index in removedGenesReservaGenesC1:
+                    #    reservaGenesChild1.pop(index)
+                    #removedGenesReservaGenesC1.clear()
                     break
             else:
                 child1.append(gene)
@@ -167,13 +167,13 @@ class PQA():
                         removedGenesReservaGenesC2.append(i)
                         continue
                     child2.append(reservaGenesChild2[i])
-                    reservaGenesChild2.pop(i)
+                    #reservaGenesChild2.pop(i)
                     
-                    m -= len(removedGenesReservaGenesC2) + 1
+                    #m -= len(removedGenesReservaGenesC2) + 1
                     
-                    for index in removedGenesReservaGenesC2:
-                        reservaGenesChild2.pop(index)
-                    removedGenesReservaGenesC2.clear()
+                    #for index in removedGenesReservaGenesC2:
+                    #    reservaGenesChild2.pop(index)
+                    #removedGenesReservaGenesC2.clear()
                     break
             else:
                 child2.append(gene)
@@ -181,7 +181,7 @@ class PQA():
             
         #selecting the second half of child2
         
-        child2_part1 = parent2[:point] + parent1[point:]
+        #child2_part1 = parent2[:point] + parent1[point:]
 
         
 
@@ -265,7 +265,9 @@ class PQA():
         """
         startIndex = None
         endIndex = None
-
+        
+        n= len(individual)
+        
         while startIndex == endIndex:
             startIndex = random.randint(0, n-2)
             endIndex = random.randint(1, n-1)
@@ -288,11 +290,32 @@ class PQA():
             for j in range(len(sortedPreviousPopulation)):
                 if sortedPreviousPopulation[j] not in currentPopulation:
                     aptIndividuals.append(sortedPreviousPopulation[j])
+                    sortedPreviousPopulation.pop(j)
+                    break
         
-        
-        sortedCurrentPopulation = sortedCurrentPopulation[:-elitAmount]
 
-        return aptIndividuals + sortedCurrentPopulation
+        lessAptIndividuals = sortedCurrentPopulation[-elitAmount:]
+        indexiesLessAptIndividuals = []
+        
+        for i in range(len(lessAptIndividuals)):
+            lessAptIndividual:List[Tuple[int,int]] = lessAptIndividuals[i]
+            indexiesLessAptIndividuals.append(currentPopulation.index(lessAptIndividual))
+            
+        currentPopulation = self.__replaceByAptPrevious(indexiesLessAptIndividuals,aptIndividuals, currentPopulation)
+
+
+        return currentPopulation
+    
+    def __replaceByAptPrevious(self, indexies:List[int], aptIndividuals, currentPopulation):
+        
+        aptIndividualsSize = len(aptIndividuals)
+        
+        for i in range(len(indexies)):
+            currentPopulation[indexies[i]] = aptIndividuals[i] 
+        
+        return currentPopulation
+            
+        
 
     def elitismWithDiversity(self, previousPopulation:List[List[Tuple[int,int]]], currentPopulation:List[List[Tuple[int,int]]], oldIndividualAmount:int) ->List[List[Tuple[int,int]]]:
         """
@@ -317,29 +340,64 @@ class PQA():
 
 
             if (lenSortedCurrentPopulation%2 == 0):
-                amountGroupA = oldIndividualAmount/2
+                amountGroupA = int(oldIndividualAmount/2)
                 amountGroupB = amountGroupA
             else:
-                amountGroupA = math.floor(oldIndividualAmount/2)
-                amountGroupB = math.ceil(oldIndividualAmount/2)
+                amountGroupA = int(math.floor(oldIndividualAmount/2))
+                amountGroupB = int(math.ceil(oldIndividualAmount/2))
             
-            elitePrevious = sortedPreviousPopulation[:amountGroupA]
+            
+            
+            
             nonElitePrevious = sortedPreviousPopulation[amountGroupA:]
-            nonElitePrevious = random.sample(nonElitePrevious,amountGroupB)
+            nonElitePrevious2 = []
+            
+            elitePrevious = []
+            self.__adder(amountGroupA, len(sortedPreviousPopulation), sortedPreviousPopulation, currentPopulation, elitePrevious)
+
+            
+            while len(nonElitePrevious2) == 0: #por algum motivo misterioso, às vezes, msm dps do loop de dentro desse while, nonElitePrevious2 continuava vazio. 1/3 vezes dava erro de indexOutOfRange por causa disso. Decidi resolver na marra e funcionou
+                for i in range(amountGroupB):
+                    index = random.randint(0,len(nonElitePrevious)-1)
+                    if nonElitePrevious[index] not in currentPopulation:
+                        nonElitePrevious2.append(nonElitePrevious[index])
+                
 
             """
             The list bellow corresponds to the indexies of the elements that are going to be substituted by the individuals of
             groups A and B,
             """
-            finalGroup2replace:List[Tuple[int,int]] = elitePrevious + nonElitePrevious
-            elements2replace:List[int] = self.__randomNumbers(self, lenSortedCurrentPopulation-1, oldIndividualAmount)
+            
+            #Início: Substitui os piores individuos da atual pelos melhores da anterior
+            indexiesLessApt = []
+            for ind in sortedCurrentPopulation[-amountGroupA:]:
+                indexInd = currentPopulation.index(ind)
+                indexiesLessApt.append(indexInd)
+            self.__replaceByAptPrevious(indexiesLessApt, elitePrevious, currentPopulation)
+            #fim
+            
+            #Início: Substitui "m" não melhores aleatórios da anterior por "m" não melhores da atual
+            
+            #fim
+            elements2replace:List[int] = self.__randomNumbers(len(currentPopulation),amountGroupB)
 
-
-            for i in range(oldIndividualAmount):
-                for indexCurrentInd in elements2replace:
-                    sortedCurrentPopulation[indexCurrentInd] = finalGroup2replace[i]
-        
-            return sortedCurrentPopulation
+                
+            for i in range(amountGroupB):
+                #a = currentPopulation[indexCurrentInd]
+                #try :
+                #    b = nonElitePrevious2[i]
+                #except IndexError:
+                #    print("oi")
+                #    print("ui")
+                #try :
+                print(len(currentPopulation))
+                print(elements2replace[i])
+                try :
+                    currentPopulation[elements2replace[i]] = nonElitePrevious2[i]
+                except IndexError:
+                    print("IO")
+                    print("io")
+            return currentPopulation
 
     #main method
 
@@ -365,13 +423,21 @@ class PQA():
 
         for i in range(genLimit):
             newPopulation:List[List[Tuple[int,int]]] = []
+            """
+            Se a população for pequena e o tamanho do torneio for pequeno, então os mesmos pais tem grandes chances de serem selecionados novamente, o que gera filhos iguais, por
+            causa 
             
-            parent1=None
-            parent2=None
+            electedParents:List[Tuple[List[Tuple[int,int],List[Tuple[int,int]]]] = [] #Uma lista cujo elementos são tuplas 
+            """
+            
             
             while len(newPopulation) <= n:
+                parent1=None
+                parent2=None
                 while parent1 == parent2 :
                     parent1 = selectionMethod(oldPopulation, tournamentSize)
+                    if ((parent1 != parent2) and (parent2 != None)):
+                        break
                     parent2 = selectionMethod(oldPopulation, tournamentSize)
                 
                 
@@ -383,11 +449,15 @@ class PQA():
             newPopulation = newPopulation[:n]
 
             #mutation
-            for j in range(n):
-                if random.random() <= mutationTax:
-                    newPopulation[j] = mutationMethod(newPopulation[j])
+            if mutationTax != 0:
+                for j in range(n):
+                    if random.random() <= mutationTax:
+                        print("MUTOU")
+                        newPopulation[j] = mutationMethod(newPopulation[j])
             #elitism propagation
-            newPopulation = elitismPropagationMethod(oldPopulation,newPopulation,elitismTax) #tenho que ver se isso não gera um problema de referência nos dicionários do python
+            if elitismTax != 0:
+                newPopulation = elitismPropagationMethod(oldPopulation,newPopulation,elitismTax) #tenho que ver se isso não gera um problema de referência nos dicionários do python
+            
             #updating statistics
             bestFitness, bestIndividual = self.__getBestFitness_and_individual(newPopulation)
             populationMean = self.__calculateMean(newPopulation, n)
@@ -421,14 +491,17 @@ class PQA():
         initPop:List[List[Tuple[int,int]]] = []
         for i in range(lengthPop):
             individual = self.__genRandomIndividual()
+            while individual in initPop:
+                individual = self.__genRandomIndividual()
             initPop.append(individual)
         return initPop
 
+    # self.__randomNumbers(lenSortedCurrentPopulation,amountGroupB)
     def __randomNumbers(self, rangeLimit:int, lenList:int) -> List[int]:
         randomlySelected = []
 
         while len(randomlySelected) != lenList:
-            randomElement = random.randint(0,rangeLimit)
+            randomElement = random.randint(0,rangeLimit-1)
             if randomElement in randomlySelected:
                 continue
             randomlySelected.append(randomElement)
@@ -459,6 +532,14 @@ class PQA():
         temp = l1[i]
         l1 = 
     """
+
+    def __adder(self, amount2add, listRefSize, oldSortedPop, newPop, list2add):
+        for i in range(amount2add):
+            for j in range(listRefSize):
+                if oldSortedPop[j] not in newPop:
+                    list2add.append(oldSortedPop[j])
+                    oldSortedPop.pop(j)
+                    break
 
 
 #teste com valores simbólicos
@@ -492,14 +573,15 @@ def test00():
 
 #teste com valores
 def test01():
-    locals_ = genRandomLocals(5)
+    locals_ = genRandomLocals(10)
     allocate = locals_
     eucDistancies = eucDistCartesianProduct(locals_)
     flows = genRandomFlows(amountFlows=5,maxFlowValue=10)
     myQPA = PQA(locals_, flows, eucDistancies, allocate)
     print(myQPA.calcTotalFlowCost(myQPA.locals_))
     #por algum motivo só pega quando genLimit == populationSize, tenho que ver o pq
-    myQPA.doOperation("tournamentSel", "crossoverAroundPoint", "swapMutation", "simpleElitism", 100, 200, 0.2, 2, tournamentSize=3)
+    #myQPA.doOperation("tournamentSel", "crossoverAroundPoint", "swapMutation", "simpleElitism", 25, 100, 0.2, 2,tournamentSize=5)
+    myQPA.doOperation("rankingSel", "uniformCrossover", "inversionMutation", "elitismWithDiversity", 10, 100, 0.2, 2,tournamentSize=5)
 
 test00()
 test01()
