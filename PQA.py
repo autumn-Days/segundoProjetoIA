@@ -17,6 +17,14 @@ Técnicas a serem utilizadas:
 - promover elitismo SIMPLES + DIVERSIDADE
 """
 
+"""
+Se em algm momento vc receber um erro do tipo "KeyError: ((8, 16), (8, 16))",
+dps de algms inferências lógicas, é possível concluir que vc tem um individuo
+como locais repetidos. Portanto, é preciso verificar se um crossover ou uma 
+propagação de elitismo gera locais repetidos.
+
+"""
+
 class PQA():
     def __init__(self, locals_:List[Tuple[int,int]], flows:Dict[Tuple[int,int],int], distancies:Dict[Tuple[Tuple[int,int],Tuple[int,int]],int], allocate=None):
         self.locals_ = locals_
@@ -31,7 +39,25 @@ class PQA():
         """
         if facility1 == facility2:
             print("estranho") # putted this flag just to visualize weird things happening
-        return self.flows[(facility1,facility2)] * self.distancies[self.__findLocal(locations,facility1), self.__findLocal(locations,facility2)]
+        
+        flowCost:int = None
+        
+        try:
+            flowCost = self.flows[(facility1,facility2)]
+        except KeyError:
+            flowCost = self.flows[(facility2,facility1)]
+        
+        location1:Tuple[int,int] = self.__findLocal(locations,facility1)
+        location2:Tuple[int,int] = self.__findLocal(locations,facility2) 
+        
+        eucDistance:int = None
+        
+        try:
+            eucDistance = self.distancies[(location1,location2)]
+        except KeyError:
+            eucDistance = self.distancies[(location2,location1)]
+        
+        return flowCost * eucDistance
 
     def calcTotalFlowCost(self, locations:List[Tuple[int,int]]):
         #This is the actual fitness function
@@ -52,14 +78,14 @@ class PQA():
         It returns the selected individual from the tournment (a list of locations).
         It rondomly chooses `tournamentSize` individuals from the population
         """
-        tourment:List[List[int,int]] = random.sample(population,tournamentSize)
+        tournament:List[List[int,int]] = random.sample(population,tournamentSize)
         """
         What the line bellow basically does is: It associates, for every individual
         in the population a value `key`, which is its fitness function, and the indi-
         vidual with the highest fitness function (which, in this case, means it has the
         lowest "calcTotalFlowCost") from all the others guys that make up the tournment
         """
-        bestIndividual = min(tournment, key = lambda individual: self.calcTotalFlowCost(individual))
+        bestIndividual = min(tournament, key = lambda individual: self.calcTotalFlowCost(individual))
         return bestIndividual
 
     def rankingSel(self, population: List[List[Tuple[int, int]]], nothingImportant=None) -> List[Tuple[int,int]]:
@@ -94,26 +120,121 @@ class PQA():
         """
 
         point:int = random.randint(1, len(parent1)-2)
-        child1 = parent1[:point] + parent2[point:]
-        child2 = parent2[:point] + parent1[point:]
+        
+        parent1_firstHalf = parent1[:point]
+        parent1_secondHalf = parent1[point:]
+        
+        parent2_firstHalf = parent2[:point]
+        parent2_secondHalf = parent2[point:]
+        
+        reservaGenesChild1 = parent2_firstHalf + parent1_secondHalf
+        reservaGenesChild2 = parent1_firstHalf + parent2_secondHalf
+        
+        n = len(reservaGenesChild1)
+        m = len(reservaGenesChild2)
+        
+        removedGenesReservaGenesC1 = []
+        removedGenesReservaGenesC2 = []
+        
+        
+        child1 = parent1_firstHalf 
+        child2 = parent2_firstHalf
+        
+        #selecting the second half of child1
+        for gene in parent2_secondHalf:
+            if gene in child1:
+                for i in range(n):
+                    if reservaGenesChild1[i] in child1:
+                        removedGenesReservaGenesC1.append(i)
+                        continue
+                    child1.append(reservaGenesChild1[i])
+                    reservaGenesChild1.pop(i)
+                    
+                    n -= len(removedGenesReservaGenesC1) + 1
+                    
+                    for index in removedGenesReservaGenesC1:
+                        reservaGenesChild1.pop(index)
+                    removedGenesReservaGenesC1.clear()
+                    break
+            else:
+                child1.append(gene)
+                
+        #selecting the second half of child2
+        for gene in parent1_secondHalf:
+            if gene in child2:
+                for i in range(m):
+                    if reservaGenesChild2[i] in child2:
+                        removedGenesReservaGenesC2.append(i)
+                        continue
+                    child2.append(reservaGenesChild2[i])
+                    reservaGenesChild2.pop(i)
+                    
+                    m -= len(removedGenesReservaGenesC2) + 1
+                    
+                    for index in removedGenesReservaGenesC2:
+                        reservaGenesChild2.pop(index)
+                    removedGenesReservaGenesC2.clear()
+                    break
+            else:
+                child2.append(gene)
+
+            
+        #selecting the second half of child2
+        
+        child2_part1 = parent2[:point] + parent1[point:]
+
+        
 
         return (child1,child2)
 
     def uniformCrossover(self, parent1: List[Tuple[int, int]], parent2: List[Tuple[int, int]]) -> Tuple[Tuple[int,int], Tuple[int,int]]:
         """
-        """
-        n = len(parent1)
+        There is the possibility that the parents have genes that are equal to one another
+        and there is the possibility that, when performing the cross over, a child end up
+        having equal genes. To put matters more precisely, the "allocate" function will end
+        up with equal locations. This is not necessarily wrong, but in this problem we are
+        dealing with locations that can only have one facility associated to them.
+        
+        To solve this the idea is the following: Instead of simply making:
 
-        child1 = []
-        child2 = []
-
-        for i in range(n):
+            for i in range(n):
             if random.random() < 0.5:
                 child1.append(parent1[i])
                 child2.append(parent2[i])
             else:
                 child1.append(parent2[i])
                 child2.append(parent1[i])
+        return (child1,child2)            
+            
+    
+        If the gene from the parent was already included in the child, then I will
+        select the next element. Simple.
+        """
+        n = len(parent1)
+
+        child1 = []
+        child2 = []
+
+        j:int = None
+
+        for i in range(n):
+            j = i
+            if random.random() < 0.5:
+                while parent1[j] in child1:
+                    j = (j+1)%n
+                child1.append(parent1[j])
+                j = i
+                while parent2[j] in child2:
+                    j =(j+1)%n
+                child2.append(parent2[j])
+            else:
+                while parent2[j] in child1:
+                    j = (j+1)%n
+                child1.append(parent2[j])
+                j = i
+                while parent1[j] in child2:
+                    j = (j+1)%n
+                child2.append(parent1[j])
         return (child1,child2)
 
     #mutations
@@ -158,10 +279,20 @@ class PQA():
         sortedPreviousPopulation = sorted(previousPopulation, key= lambda individual: self.calcTotalFlowCost(individual))
         sortedCurrentPopulation = sorted(currentPopulation, key= lambda individual: self.calcTotalFlowCost(individual))
         
-        sortedPreviousPopulation = sortedPreviousPopulation[:elitAmount]
+        aptIndividuals = []
+        
+        #esse laço abaixo é para evitar que 2 individuos iguais estejam na mesma população
+        #se não, o crossover entre eles sempre vai produzir eles próprios
+        j = 0
+        for i in range(elitAmount):
+            for j in range(len(sortedPreviousPopulation)):
+                if sortedPreviousPopulation[j] not in currentPopulation:
+                    aptIndividuals.append(sortedPreviousPopulation[j])
+        
+        
         sortedCurrentPopulation = sortedCurrentPopulation[:-elitAmount]
 
-        return sortedPreviousPopulation + sortedCurrentPopulation
+        return aptIndividuals + sortedCurrentPopulation
 
     def elitismWithDiversity(self, previousPopulation:List[List[Tuple[int,int]]], currentPopulation:List[List[Tuple[int,int]]], oldIndividualAmount:int) ->List[List[Tuple[int,int]]]:
         """
@@ -214,14 +345,15 @@ class PQA():
 
     def doOperation(self, selectionMethod:str, crossOverMethod:str,
                     mutationMethod:str, elitismPropagationMethod:str,
-                    genLimit:int, mutationTax:int, elitismTax:int, tournmentSize:int=None):
+                    populationSize:int, genLimit:int, mutationTax:int,
+                    elitismTax:int,tournamentSize:int=None):
 
         selectionMethod:Callable =              getattr(self, selectionMethod,          None)
         crossOverMethod:Callable =              getattr(self, crossOverMethod,          None)
         mutationMethod:Callable =               getattr(self, mutationMethod,           None)
         elitismPropagationMethod:Callable =     getattr(self, elitismPropagationMethod, None)
 
-        oldPopulation:List[List[Tuple[int,int]]] = self.__genInitPopulation()
+        oldPopulation:List[List[Tuple[int,int]]] = self.__genInitPopulation(populationSize)
 
         #statistics
         fittestIndividual:List[Tuple[int,int]] = None
@@ -233,11 +365,17 @@ class PQA():
 
         for i in range(genLimit):
             newPopulation:List[List[Tuple[int,int]]] = []
-
+            
+            parent1=None
+            parent2=None
+            
             while len(newPopulation) <= n:
-                parent1 = selectionMethod(oldPopulation, tournamentSize)
-                parent2 = selectionMethod(oldPopulation, tournmentSize)
-
+                while parent1 == parent2 :
+                    parent1 = selectionMethod(oldPopulation, tournamentSize)
+                    parent2 = selectionMethod(oldPopulation, tournamentSize)
+                
+                
+                #verificar se parent1 e parent2 já foram selecionados para um cruzamento, pode ser uma boa idea, mas pode fazer com que o processamento demore mt                
                 child1,child2 = crossOverMethod(parent1,parent2)
 
                 newPopulation.extend([child1,child2])
@@ -245,14 +383,14 @@ class PQA():
             newPopulation = newPopulation[:n]
 
             #mutation
-            for i in range(n):
+            for j in range(n):
                 if random.random() <= mutationTax:
-                    newPopulation[i] = mutationMethod(newPopulation[i])
+                    newPopulation[j] = mutationMethod(newPopulation[j])
             #elitism propagation
-            newPopulation = elitismPropagation(oldPopulation,newPopulation,elitismTax) #tenho que ver se isso não gera um problema de referência nos dicionários do python
+            newPopulation = elitismPropagationMethod(oldPopulation,newPopulation,elitismTax) #tenho que ver se isso não gera um problema de referência nos dicionários do python
             #updating statistics
             bestFitness, bestIndividual = self.__getBestFitness_and_individual(newPopulation)
-            populationMean = self.__calculateMean(newPopulation)
+            populationMean = self.__calculateMean(newPopulation, n)
             print(f"""-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             \t\t\t\t\t\t\t\tGERAÇÃO{i}
             •melhor indivíduo: {bestIndividual}
@@ -265,7 +403,8 @@ class PQA():
 
     #private methods
     def __getBestFitness_and_individual(self,population:List[List[Tuple[int,int]]]) -> List[Tuple[int, int]]:
-        return min(population, key=lambda individual: (self.calcTotalFlowCost(individual),individual))
+        bestIndividual = min(population, key=lambda individual: self.calcTotalFlowCost(individual))
+        return (self.calcTotalFlowCost(bestIndividual),bestIndividual) 
 
     def __genRandomIndividual(self):
         """
@@ -308,7 +447,7 @@ class PQA():
         """
         mean:float = 0
         for i in range(n):
-            mean += self.calcTotalFlowCost(population)
+            mean += self.calcTotalFlowCost(population[i])
         
         return mean/n
 
@@ -359,6 +498,8 @@ def test01():
     flows = genRandomFlows(amountFlows=5,maxFlowValue=10)
     myQPA = PQA(locals_, flows, eucDistancies, allocate)
     print(myQPA.calcTotalFlowCost(myQPA.locals_))
+    #por algum motivo só pega quando genLimit == populationSize, tenho que ver o pq
+    myQPA.doOperation("tournamentSel", "crossoverAroundPoint", "swapMutation", "simpleElitism", 100, 200, 0.2, 2, tournamentSize=3)
 
 test00()
 test01()
