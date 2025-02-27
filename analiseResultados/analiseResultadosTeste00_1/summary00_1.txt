@@ -1,0 +1,35 @@
+-=-==-=-=
+COMBINAÇÃO: Gns40_Gen150_pop40_elit0.08_m0.2.txt
+Melhor aptidão 1° gen: 947126
+Melhor aptidão última gen: 954216
+Diferença de aptidões gen: -7090
+-=-==-=-=
+
+-=-==-=-=
+COMBINAÇÃO: Gns40_Gen300_pop40_elit0.08_m0.2.txt
+Melhor aptidão 1° gen: 945554
+Melhor aptidão última gen: 947182
+Diferença de aptidões gen: -1628
+-=-==-=-=
+
+-=-==-=-=
+COMBINAÇÃO: Gns40_Gen75_pop40_elit0.08_m0.2.txt
+Melhor aptidão 1° gen: 953160
+Melhor aptidão última gen: 950392
+Diferença de aptidões gen: 2768
+-=-==-=-=
+
+-=-==-=-=
+COMBINAÇÃO: Gns60_Gen150_pop40_elit0.08_m0.2.txt
+Melhor aptidão 1° gen: 3402962
+Melhor aptidão última gen: 3429104
+Diferença de aptidões gen: -26142
+-=-==-=-=
+
+-=-==-=-=
+COMBINAÇÃO: Gns60_Gen75_pop40_elit0.08_m0.2.txt
+Melhor aptidão 1° gen: 3430780
+Melhor aptidão última gen: 3412330
+Diferença de aptidões gen: 18450
+-=-==-=-=
+
