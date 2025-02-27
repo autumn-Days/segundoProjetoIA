@@ -62,7 +62,7 @@ def genRandomFlows(amountFlows:int, maxFlowValue:int=100) -> Dict[Tuple[int,int]
             randomFlow = random.randint(1,maxFlowValue)
             flows[(i,j)] = randomFlow
             #Na vdd, não é para adicionar os duplicados. Em última instância, isso gera o dobro do valor esperado no PQA
-            #flows[(j,i)] = randomFlow
+            flows[(j,i)] = randomFlow
     return flows
 
 def displayDistanciesMatrix(matrix:Dict[Tuple[Tuple[int,int],Tuple[int,int]],int]) -> None:
