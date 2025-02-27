@@ -128,17 +128,17 @@ class PQA():
         parent2_secondHalf = parent2[point:]
         
         reservaGenesChild1 = parent2_firstHalf + parent1_secondHalf
-        reservaGenesChild2 = parent1_firstHalf + parent2_secondHalf
+        #reservaGenesChild2 = parent1_firstHalf + parent2_secondHalf
         
         n = len(reservaGenesChild1)
-        m = len(reservaGenesChild2)
+        #m = len(reservaGenesChild2)
         
         removedGenesReservaGenesC1 = []
-        removedGenesReservaGenesC2 = []
+        #removedGenesReservaGenesC2 = []
         
         
         child1 = parent1_firstHalf 
-        child2 = parent2_firstHalf
+        #child2 = parent2_firstHalf
         
         #selecting the second half of child1
         for gene in parent2_secondHalf:
@@ -160,13 +160,13 @@ class PQA():
                 child1.append(gene)
                 
         #selecting the second half of child2
-        for gene in parent1_secondHalf:
-            if gene in child2:
-                for i in range(m):
-                    if reservaGenesChild2[i] in child2:
-                        removedGenesReservaGenesC2.append(i)
-                        continue
-                    child2.append(reservaGenesChild2[i])
+        #for gene in parent1_secondHalf:
+        #    if gene in child2:
+        #        for i in range(m):
+        #            if reservaGenesChild2[i] in child2:
+        #                removedGenesReservaGenesC2.append(i)
+        #                continue
+        #            child2.append(reservaGenesChild2[i])
                     #reservaGenesChild2.pop(i)
                     
                     #m -= len(removedGenesReservaGenesC2) + 1
@@ -174,9 +174,9 @@ class PQA():
                     #for index in removedGenesReservaGenesC2:
                     #    reservaGenesChild2.pop(index)
                     #removedGenesReservaGenesC2.clear()
-                    break
-            else:
-                child2.append(gene)
+        #            break
+        #    else:
+        #        child2.append(gene)
 
             
         #selecting the second half of child2
@@ -185,7 +185,7 @@ class PQA():
 
         
 
-        return (child1,child2)
+        return child1
 
     def uniformCrossover(self, parent1: List[Tuple[int, int]], parent2: List[Tuple[int, int]]) -> Tuple[Tuple[int,int], Tuple[int,int]]:
         """
@@ -213,7 +213,7 @@ class PQA():
         n = len(parent1)
 
         child1 = []
-        child2 = []
+        #child2 = []
 
         j:int = None
 
@@ -223,19 +223,19 @@ class PQA():
                 while parent1[j] in child1:
                     j = (j+1)%n
                 child1.append(parent1[j])
-                j = i
-                while parent2[j] in child2:
-                    j =(j+1)%n
-                child2.append(parent2[j])
+         #       j = i
+         #       while parent2[j] in child2:
+         #           j =(j+1)%n
+         #       child2.append(parent2[j])
             else:
                 while parent2[j] in child1:
                     j = (j+1)%n
                 child1.append(parent2[j])
-                j = i
-                while parent1[j] in child2:
-                    j = (j+1)%n
-                child2.append(parent1[j])
-        return (child1,child2)
+         #       j = i
+         #       while parent1[j] in child2:
+         #           j = (j+1)%n
+         #       child2.append(parent1[j])
+        return child1
 
     #mutations
 
@@ -390,8 +390,8 @@ class PQA():
                 #    print("oi")
                 #    print("ui")
                 #try :
-                print(len(currentPopulation))
-                print(elements2replace[i])
+                #print(len(currentPopulation))
+                #print(elements2replace[i])
                 try :
                     currentPopulation[elements2replace[i]] = nonElitePrevious2[i]
                 except IndexError:
@@ -442,9 +442,9 @@ class PQA():
                 
                 
                 #verificar se parent1 e parent2 já foram selecionados para um cruzamento, pode ser uma boa idea, mas pode fazer com que o processamento demore mt                
-                child1,child2 = crossOverMethod(parent1,parent2)
+                child1 = crossOverMethod(parent1,parent2)
 
-                newPopulation.extend([child1,child2])
+                newPopulation.append(child1)
             
             newPopulation = newPopulation[:n]
 
@@ -452,7 +452,7 @@ class PQA():
             if mutationTax != 0:
                 for j in range(n):
                     if random.random() <= mutationTax:
-                        print("MUTOU")
+                        #print("MUTOU")
                         newPopulation[j] = mutationMethod(newPopulation[j])
             #elitism propagation
             if elitismTax != 0:
@@ -461,20 +461,27 @@ class PQA():
             #updating statistics
             bestFitness, bestIndividual = self.__getBestFitness_and_individual(newPopulation)
             populationMean = self.__calculateMean(newPopulation, n)
+            worstFitness, worstIndividual = self.__getWorstFitness_and_individual(newPopulation)
             print(f"""-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             \t\t\t\t\t\t\t\tGERAÇÃO{i}
-            •melhor indivíduo: {bestIndividual}
-                •aptidão: {bestFitness}
-            •aptidão média: {populationMean}""")
-        
-        return (fittestIndividual, bestFitness, mediumFitness)
+            best individual: ●{bestIndividual}
+                    aptidão best: •{bestFitness}
+            worst individual: ■{worstIndividual}
+                    aptidão worst: ▪{worstFitness}
+            aptidão média: ◇{populationMean}""")
+            #print(f"{bestFitness}")
+        #return (fittestIndividual, bestFitness, mediumFitness)
             
             
 
     #private methods
     def __getBestFitness_and_individual(self,population:List[List[Tuple[int,int]]]) -> List[Tuple[int, int]]:
         bestIndividual = min(population, key=lambda individual: self.calcTotalFlowCost(individual))
-        return (self.calcTotalFlowCost(bestIndividual),bestIndividual) 
+        return (self.calcTotalFlowCost(bestIndividual),bestIndividual)
+
+    def __getWorstFitness_and_individual(self,population:List[List[Tuple[int,int]]]) -> List[Tuple[int, int]]:
+        worstIndividual = max(population, key=lambda individual: self.calcTotalFlowCost(individual))
+        return (self.calcTotalFlowCost(worstIndividual),worstIndividual)
 
     def __genRandomIndividual(self):
         """
@@ -572,20 +579,19 @@ def test00():
     print(myPQA.calcTotalFlowCost(myPQA.locals_))
 
 #teste com valores
-def test01():
+def test__():
     locals_ = genRandomLocals(10)
     allocate = locals_
     eucDistancies = eucDistCartesianProduct(locals_)
-    flows = genRandomFlows(amountFlows=5,maxFlowValue=10)
+    flows = genRandomFlows(amountFlows=10,maxFlowValue=10)
     myQPA = PQA(locals_, flows, eucDistancies, allocate)
-    print(myQPA.calcTotalFlowCost(myQPA.locals_))
+    #print(myQPA.calcTotalFlowCost(myQPA.locals_))
     #por algum motivo só pega quando genLimit == populationSize, tenho que ver o pq
     #myQPA.doOperation("tournamentSel", "crossoverAroundPoint", "swapMutation", "simpleElitism", 25, 100, 0.2, 2,tournamentSize=5)
-    myQPA.doOperation("rankingSel", "uniformCrossover", "inversionMutation", "elitismWithDiversity", 10, 100, 0.2, 2,tournamentSize=5)
+    myQPA.doOperation("rankingSel", "crossoverAroundPoint", "swapMutation", "elitismWithDiversity", 40, 1000, 0.3, 3,tournamentSize=5)
 
-test00()
-test01()
-
+#test__()
+#test00()
 
 
 """
