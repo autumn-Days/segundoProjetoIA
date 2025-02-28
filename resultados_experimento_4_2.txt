@@ -1,0 +1,94 @@
+Resultados do Experimento:
+Tamanho da população: 40, Limite de gerações: 100, Taxa de mutação: 0.2, Taxa de elitismo: 2, Tamanho do torneio: 5
+
+Resultados para Seleção: tournamentSel, Mutação: swapMutation
+Execução 1: Fitness = 10980
+Execução 2: Fitness = 10850
+Execução 3: Fitness = 11998
+Execução 4: Fitness = 13552
+Execução 5: Fitness = 14858
+Execução 6: Fitness = 14566
+Execução 7: Fitness = 15300
+Execução 8: Fitness = 16192
+Execução 9: Fitness = 17022
+Execução 10: Fitness = 11704
+Execução 11: Fitness = 11598
+Execução 12: Fitness = 10898
+Execução 13: Fitness = 12552
+Execução 14: Fitness = 13014
+Execução 15: Fitness = 10736
+Execução 16: Fitness = 14594
+Execução 17: Fitness = 13212
+Execução 18: Fitness = 15814
+Execução 19: Fitness = 17668
+Execução 20: Fitness = 13266
+Média do fitness: 13518.7
+
+Resultados para Seleção: tournamentSel, Mutação: inversionMutation
+Execução 1: Fitness = 14686
+Execução 2: Fitness = 12574
+Execução 3: Fitness = 11970
+Execução 4: Fitness = 11494
+Execução 5: Fitness = 18426
+Execução 6: Fitness = 12424
+Execução 7: Fitness = 15342
+Execução 8: Fitness = 10366
+Execução 9: Fitness = 12070
+Execução 10: Fitness = 12172
+Execução 11: Fitness = 13786
+Execução 12: Fitness = 17574
+Execução 13: Fitness = 12544
+Execução 14: Fitness = 10940
+Execução 15: Fitness = 11876
+Execução 16: Fitness = 9516
+Execução 17: Fitness = 17744
+Execução 18: Fitness = 15428
+Execução 19: Fitness = 12234
+Execução 20: Fitness = 12426
+Média do fitness: 13279.6
+
+Resultados para Seleção: rankingSel, Mutação: swapMutation
+Execução 1: Fitness = 13508
+Execução 2: Fitness = 14092
+Execução 3: Fitness = 13708
+Execução 4: Fitness = 14752
+Execução 5: Fitness = 12496
+Execução 6: Fitness = 13082
+Execução 7: Fitness = 12132
+Execução 8: Fitness = 11488
+Execução 9: Fitness = 13474
+Execução 10: Fitness = 12670
+Execução 11: Fitness = 10102
+Execução 12: Fitness = 14776
+Execução 13: Fitness = 9764
+Execução 14: Fitness = 13550
+Execução 15: Fitness = 11426
+Execução 16: Fitness = 12666
+Execução 17: Fitness = 14332
+Execução 18: Fitness = 15378
+Execução 19: Fitness = 11342
+Execução 20: Fitness = 12992
+Média do fitness: 12886.5
+
+Resultados para Seleção: rankingSel, Mutação: inversionMutation
+Execução 1: Fitness = 15508
+Execução 2: Fitness = 12850
+Execução 3: Fitness = 14602
+Execução 4: Fitness = 13282
+Execução 5: Fitness = 11094
+Execução 6: Fitness = 10880
+Execução 7: Fitness = 11158
+Execução 8: Fitness = 15664
+Execução 9: Fitness = 14242
+Execução 10: Fitness = 14982
+Execução 11: Fitness = 12802
+Execução 12: Fitness = 10138
+Execução 13: Fitness = 15282
+Execução 14: Fitness = 12212
+Execução 15: Fitness = 14768
+Execução 16: Fitness = 16466
+Execução 17: Fitness = 14832
+Execução 18: Fitness = 11664
+Execução 19: Fitness = 12202
+Execução 20: Fitness = 11042
+Média do fitness: 13283.5

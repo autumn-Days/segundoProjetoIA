@@ -1,0 +1,48 @@
+Resultados do Experimento - Variação de Elitismo:
+Tamanho da população: 40, Limite de gerações: 100, Taxa de mutação: 0.2, Tamanho do torneio: 5
+
+Resultados para Elitismo: simpleElitism
+Execução 1: Fitness = 11742
+Execução 2: Fitness = 14724
+Execução 3: Fitness = 13242
+Execução 4: Fitness = 16582
+Execução 5: Fitness = 14548
+Execução 6: Fitness = 16824
+Execução 7: Fitness = 13234
+Execução 8: Fitness = 11144
+Execução 9: Fitness = 9260
+Execução 10: Fitness = 18156
+Execução 11: Fitness = 14570
+Execução 12: Fitness = 15528
+Execução 13: Fitness = 8856
+Execução 14: Fitness = 11234
+Execução 15: Fitness = 16106
+Execução 16: Fitness = 13842
+Execução 17: Fitness = 13036
+Execução 18: Fitness = 13976
+Execução 19: Fitness = 17424
+Execução 20: Fitness = 13196
+Média do fitness: 13861.2
+
+Resultados para Elitismo: elitismWithDiversity
+Execução 1: Fitness = 11684
+Execução 2: Fitness = 12346
+Execução 3: Fitness = 11968
+Execução 4: Fitness = 11634
+Execução 5: Fitness = 11034
+Execução 6: Fitness = 15774
+Execução 7: Fitness = 11974
+Execução 8: Fitness = 9554
+Execução 9: Fitness = 11802
+Execução 10: Fitness = 12368
+Execução 11: Fitness = 13506
+Execução 12: Fitness = 12046
+Execução 13: Fitness = 13220
+Execução 14: Fitness = 14054
+Execução 15: Fitness = 10764
+Execução 16: Fitness = 14378
+Execução 17: Fitness = 11514
+Execução 18: Fitness = 14310
+Execução 19: Fitness = 11838
+Execução 20: Fitness = 11800
+Média do fitness: 12378.4
