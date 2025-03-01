@@ -1,0 +1,48 @@
+Resultados do Experimento - Variação de Crossover:
+Tamanho da população: 40, Limite de gerações: 50, Taxa de mutação: 0.3, Tamanho do torneio: 12
+
+Resultados para Crossover: crossoverAroundPoint
+Execução 1: Fitness = 14240
+Execução 2: Fitness = 14644
+Execução 3: Fitness = 14486
+Execução 4: Fitness = 14446
+Execução 5: Fitness = 13852
+Execução 6: Fitness = 14510
+Execução 7: Fitness = 14404
+Execução 8: Fitness = 14096
+Execução 9: Fitness = 14512
+Execução 10: Fitness = 14658
+Execução 11: Fitness = 14558
+Execução 12: Fitness = 14590
+Execução 13: Fitness = 14174
+Execução 14: Fitness = 14730
+Execução 15: Fitness = 14742
+Execução 16: Fitness = 14664
+Execução 17: Fitness = 14210
+Execução 18: Fitness = 14254
+Execução 19: Fitness = 14652
+Execução 20: Fitness = 14778
+Média do fitness: 14450
+
+Resultados para Crossover: uniformCrossover
+Execução 1: Fitness = 14640
+Execução 2: Fitness = 14820
+Execução 3: Fitness = 14770
+Execução 4: Fitness = 14396
+Execução 5: Fitness = 14094
+Execução 6: Fitness = 14868
+Execução 7: Fitness = 14616
+Execução 8: Fitness = 14178
+Execução 9: Fitness = 15082
+Execução 10: Fitness = 14716
+Execução 11: Fitness = 15248
+Execução 12: Fitness = 14474
+Execução 13: Fitness = 14170
+Execução 14: Fitness = 14830
+Execução 15: Fitness = 14706
+Execução 16: Fitness = 14206
+Execução 17: Fitness = 14804
+Execução 18: Fitness = 14326
+Execução 19: Fitness = 14588
+Execução 20: Fitness = 14864
+Média do fitness: 14674.6.
