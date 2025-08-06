@@ -311,8 +311,10 @@ class PQA():
         aptIndividualsSize = len(aptIndividuals)
         
         for i in range(len(indexies)):
-            currentPopulation[indexies[i]] = aptIndividuals[i] 
-        
+            try:
+                currentPopulation[indexies[i]] = aptIndividuals[i] 
+            except IndexError:
+                continue
         return currentPopulation
             
         
@@ -469,6 +471,7 @@ class PQA():
             worst individual: ■{worstIndividual}
                     aptidão worst: ▪{worstFitness}
             aptidão média: ◇{populationMean}""")
+            oldPopulation = newPopulation
             #print(f"{bestFitness}")
         #return (fittestIndividual, bestFitness, mediumFitness)
             
@@ -543,11 +546,13 @@ class PQA():
     def __adder(self, amount2add, listRefSize, oldSortedPop, newPop, list2add):
         for i in range(amount2add):
             for j in range(listRefSize):
-                if oldSortedPop[j] not in newPop:
-                    list2add.append(oldSortedPop[j])
-                    oldSortedPop.pop(j)
-                    break
-
+                try:
+                    if oldSortedPop[j] not in newPop:
+                        list2add.append(oldSortedPop[j])
+                        oldSortedPop.pop(j)
+                        break
+                except IndexError:
+                    continue
 
 #teste com valores simbólicos
 def test00():
@@ -589,7 +594,6 @@ def test__():
     #por algum motivo só pega quando genLimit == populationSize, tenho que ver o pq
     #myQPA.doOperation("tournamentSel", "crossoverAroundPoint", "swapMutation", "simpleElitism", 25, 100, 0.2, 2,tournamentSize=5)
     myQPA.doOperation("rankingSel", "crossoverAroundPoint", "swapMutation", "elitismWithDiversity", 40, 1000, 0.3, 3,tournamentSize=5)
-
 #test__()
 #test00()
 
